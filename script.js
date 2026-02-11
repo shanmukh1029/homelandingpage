@@ -71,17 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuClose = document.getElementById('menu-close');
     const mobileMenu = document.getElementById('mobile-menu');
 
+    function closeMobileMenu() {
+        mobileMenu.classList.remove('flex');
+        mobileMenu.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    window.closeMobileMenu = closeMobileMenu;
+
     menuBtn.addEventListener('click', () => {
-        mobileMenu.style.display = 'flex';
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.add('flex');
         document.body.style.overflow = 'hidden';
     });
 
     menuClose.addEventListener('click', closeMobileMenu);
-
-    window.closeMobileMenu = function () {
-        mobileMenu.style.display = 'none';
-        document.body.style.overflow = '';
-    };
 
 
     // ===== SMOOTH SCROLL =====
@@ -278,46 +281,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== GSAP AWARD-WINNING ANIMATIONS =====
     gsap.registerPlugin(ScrollTrigger);
 
-    // Scroll Trigger Animations (fade-up elements)
-    gsap.utils.toArray('[data-animate="fade-up"]').forEach(element => {
-        gsap.from(element, {
+    // NOTE: Scroll-triggered reveal animations for [data-animate] elements
+    // are handled by the CSS + IntersectionObserver system (initScrollAnimations).
+    // GSAP ScrollTrigger is available for more advanced animations.
+
+    // Parallax text effect on scroll
+    gsap.utils.toArray('.parallax-text').forEach(text => {
+        gsap.to(text, {
             scrollTrigger: {
-                trigger: element,
-                start: "top 85%",
-                toggleActions: "play none none reverse"
+                trigger: text,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1
             },
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: "power3.out"
+            y: -50,
+            ease: "none"
         });
     });
 
-    gsap.utils.toArray('[data-animate="fade-left"]').forEach(element => {
-        gsap.from(element, {
-            scrollTrigger: {
-                trigger: element,
-                start: "top 85%",
-            },
-            x: 50,
-            opacity: 0,
-            duration: 1,
-            ease: "power3.out"
-        });
-    });
-
-    gsap.utils.toArray('[data-animate="scale-in"]').forEach(element => {
-        gsap.from(element, {
-            scrollTrigger: {
-                trigger: element,
-                start: "top 90%",
-            },
-            scale: 0.9,
-            opacity: 0,
-            duration: 1.2,
-            ease: "power2.out"
-        });
-    });
     const scrambleElements = document.querySelectorAll('[data-scramble]');
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
