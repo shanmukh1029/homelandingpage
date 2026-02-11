@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Vortex — Premium Home Appliances</title>
+    <meta name="description"
+        content="Vortex — Redefining the modern kitchen through high-contrast aesthetics and industrial-grade performance.">
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- GSAP for Award-Winning Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;600;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2f20d",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#222210",
+                        "jet-black": "#121210",
+                        "pearl-white": "#f8f8f5"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+        // --- Phase 2: Cinematic Animations --- 
+        const observerOptions = { threshold: 0.15, rootMargin: "0px" };
+        const cinematicObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("active");
+                    // Optional: Stop observing once revealed 
+                    cinematicObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // 1. Image Unmasking 
+        document.querySelectorAll(".img-reveal").forEach(el => {
+            el.classList.add("reveal-clip");
+            cinematicObserver.observe(el);
+        });
+
+        // 2. Typography Stagger 
+        document.querySelectorAll("h1, h2, h3").forEach(el => {
+            el.classList.add("text-reveal");
+            const text = el.innerText;
+            el.innerHTML = text.split("").map((char, i) => {
+                return `<span class="split-char" style="transition-delay: ${i * 0.03}s">${char === " " ? "&nbsp;" : char}</span>`;
+            }).join("");
+            cinematicObserver.observe(el);
+        });
+
+        // 3. Parallax Elements 
+        window.addEventListener("scroll", () => {
+            const scrolled = window.scrollY;
+            document.querySelectorAll(".parallax-text").forEach(el => {
+                const speed = el.dataset.speed || 0.2;
+                el.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Work Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== Scroll Animations ===== */
+        [data-animate] {
+            opacity: 0;
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                clip-path 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        [data-animate="fade-up"] {
+            transform: translateY(60px);
+        }
+
+        [data-animate="fade-down"] {
+            transform: translateY(-60px);
+        }
+
+        [data-animate="fade-left"] {
+            transform: translateX(80px);
+        }
+
+        [data-animate="fade-right"] {
+            transform: translateX(-80px);
+        }
+
+        [data-animate="scale-in"] {
+            transform: scale(0.9);
+        }
+
+        [data-animate="clip-up"] {
+            clip-path: inset(100% 0 0 0);
+            opacity: 0;
+            transform: none;
+        }
+
+        [data-animate].in-view {
+            opacity: 1;
+            transform: none;
+            clip-path: inset(0 0 0 0);
+        }
+
+        /* Stagger children */
+        [data-stagger]>[data-animate] {
+            transition-delay: calc(var(--stagger-index, 0) * 0.12s);
+        }
+
+        /* Hero text reveal */
+        .hero-word {
+            display: inline-block;
+            overflow: hidden;
+            padding-right: 0.2em;
+            /* Fix for italic text clipping */
+            padding-bottom: 0.2em;
+            /* Fix for descender clipping */
+            margin-bottom: -0.2em;
+            /* Compensate for padding */
+            vertical-align: bottom;
+        }
+
+        .hero-word span {
+            display: inline-block;
+            transform: translateY(110%);
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .hero-word.revealed span {
+            transform: translateY(0);
+        }
+
+        /* Smooth image parallax */
+        .parallax-img {
+            transition: transform 0.1s linear;
+            will-change: transform;
+        }
+
+        /* Horizontal scroll text */
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .scroll-text {
+            animation: scroll-left 20s linear infinite;
+        }
+
+        /* Nav bar transition */
+        .nav-blur {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(18, 18, 16, 0.85);
+        }
+
+        /* Counter animation */
+        .counter {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Magnetic button effect */
+        .magnetic-btn {
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Image reveal on hover */
+        .img-reveal {
+            overflow: hidden;
+        }
+
+        .img-reveal img {
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                filter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Loading screen */
+        #loader {
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #loader.done {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Ambient Aurora Background */
+        @keyframes aurora {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .aurora-bg {
+            background: linear-gradient(-45deg, #121210, #1a1a15, #222210, #121210);
+            background-size: 400% 400%;
+            animation: aurora 15s ease infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+
+
+
+
+        /* Film Grain Animation - DISABLED FOR PERFORMANCE */
+        /*
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -5%); }
+            20% { transform: translate(-10%, 5%); }
+            30% { transform: translate(5%, -10%); }
+            40% { transform: translate(-5%, 15%); }
+            50% { transform: translate(-10%, 5%); }
+            60% { transform: translate(15%, 0); }
+            70% { transform: translate(0, 10%); }
+            80% { transform: translate(-15%, 0); }
+            90% { transform: translate(10%, 5%); }
+        }
+        
+        svg rect {
+            animation: grain 8s steps(10) infinite;
+        }
+        */
+
+
+        /* Image Unmasking */
+        .reveal-clip {
+            clip-path: inset(0 100% 0 0);
+            transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .reveal-clip.active {
+            clip-path: inset(0 0 0 0);
+        }
+
+        /* Typography Stagger */
+        .split-char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: transform 0.8s cubic-bezier(0.5, 0, 0, 1), opacity 0.8s ease;
+        }
+
+        .text-reveal.active .split-char {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Lenis Recommended Styles */
+        html.lenis,
+        html.lenis body {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-jet-black dark:text-pearl-white">
+
+
+    <!-- Ambient Aurora Background -->
+    <div class="aurora-bg"></div>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="fixed inset-0 z-[9999] bg-jet-black flex items-center justify-center">
+        <div class="text-center">
+            <div class="text-4xl font-black tracking-tighter text-pearl-white uppercase italic mb-4">
+                Vortex<span class="text-primary">.</span>
+            </div>
+            <div class="w-32 h-[2px] bg-pearl-white/10 mx-auto overflow-hidden rounded-full">
+                <div id="loader-bar" class="h-full bg-primary rounded-full"
+                    style="width: 0%; transition: width 0.8s ease;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot hidden md:block" id="cursor-dot"></div>
+
+
+    <!-- Navigation -->
+    <nav id="navbar"
+        class="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center transition-all duration-500"
+        style="background: linear-gradient(to bottom, rgba(18,18,16,0.85) 0%, rgba(18,18,16,0.5) 60%, transparent 100%);">
+
+        <div class="text-2xl font-black tracking-tighter text-pearl-white uppercase italic">
+            Vortex<span class="text-primary">.</span>
+        </div>
+        <div class="hidden md:flex gap-12 font-semibold text-xs tracking-widest uppercase text-pearl-white">
+            <a data-magnetic data-scramble class="hover:text-primary transition-colors duration-300 relative group"
+                href="#collection">
+                Collection
+                <span
+                    class="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a data-magnetic data-scramble class="hover:text-primary transition-colors duration-300 relative group"
+                href="#innovation">
+                Innovation
+                <span
+                    class="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a data-magnetic data-scramble class="hover:text-primary transition-colors duration-300 relative group"
+                href="#specs">
+                Design Studio
+                <span
+                    class="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a data-magnetic data-scramble class="hover:text-primary transition-colors duration-300 relative group"
+                href="#footer">
+                Contact
+                <span
+                    class="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full"></span>
+            </a>
+        </div>
+        <button data-magnetic id="menu-btn" class="material-icons text-pearl-white md:hidden text-3xl">menu</button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-jet-black flex-col items-center justify-center gap-8 hidden">
+        <button data-magnetic id="menu-close"
+            class="absolute top-6 right-8 material-icons text-pearl-white text-3xl">close</button>
+        <a data-magnetic
+            class="text-3xl font-black uppercase tracking-tighter text-pearl-white hover:text-primary transition-colors"
+            href="#collection" onclick="closeMobileMenu()">Collection</a>
+        <a data-magnetic
+            class="text-3xl font-black uppercase tracking-tighter text-pearl-white hover:text-primary transition-colors"
+            href="#innovation" onclick="closeMobileMenu()">Innovation</a>
+        <a data-magnetic
+            class="text-3xl font-black uppercase tracking-tighter text-pearl-white hover:text-primary transition-colors"
+            href="#specs" onclick="closeMobileMenu()">Design Studio</a>
+        <a data-magnetic
+            class="text-3xl font-black uppercase tracking-tighter text-pearl-white hover:text-primary transition-colors"
+            href="#footer" onclick="closeMobileMenu()">Contact</a>
+    </div>
+
+    <!-- ===== SPLIT SCREEN HERO ===== -->
+    <header id="hero" class="relative min-h-screen flex flex-col md:flex-row">
+        <!-- Left Side: Jet Black -->
+        <div
+            class="w-full md:w-[48%] bg-jet-black flex flex-col justify-center px-10 lg:px-14 xl:px-12 pt-32 pb-16 relative z-10 overflow-hidden">
+            <div class="space-y-6">
+                <span class="text-primary text-sm font-bold tracking-[0.3em] uppercase block"
+                    data-animate="fade-up">Elite Series 2024</span>
+
+
+                <h1 class="text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] font-black text-pearl-white leading-none uppercase tracking-tighter parallax-text"
+                    data-speed="0.1">
+                    <div class="hero-word"><span>Engineering</span></div> <br />
+                    <div class="hero-word"><span class="text-primary italic">Meets</span></div> <br />
+                    <div class="hero-word"><span>Art.</span></div>
+                </h1>
+
+                <p class="text-pearl-white/60 max-w-sm text-lg font-light leading-relaxed parallax-text"
+                    data-animate="fade-up" data-delay="400" data-speed="0.05">
+                    Redefining the modern kitchen through high-contrast aesthetics and industrial-grade performance.
+                </p>
+
+                <div class="flex gap-4 pt-8" data-animate="fade-up" data-delay="600">
+                    <button
+                        class="magnetic-btn bg-primary text-jet-black px-10 py-4 font-bold uppercase text-sm rounded hover:brightness-110 transition-all flex items-center group"
+                        id="hero-cta">
+                        Explore Collection
+                        <span
+                            class="material-icons ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="flex gap-10 pt-10 border-t border-pearl-white/10 mt-6" data-animate="fade-up"
+                    data-delay="800">
+                    <div>
+                        <div class="text-3xl font-black text-pearl-white counter" data-count="25">0</div>
+                        <div class="text-[10px] uppercase tracking-widest text-pearl-white/40 mt-1">Year Warranty</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-black text-pearl-white counter" data-count="120">0</div>
+                        <div class="text-[10px] uppercase tracking-widest text-pearl-white/40 mt-1">Countries</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-black text-pearl-white">A+++</div>
+                        <div class="text-[10px] uppercase tracking-widest text-pearl-white/40 mt-1">Energy Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decorative -->
+            <div
+                class="absolute -bottom-10 -left-10 text-[12rem] font-black text-white/[0.03] select-none pointer-events-none">
+                VRTX
+            </div>
+        </div>
+
+        <!-- Right Side: Pearl White -->
+        <div
+            class="w-full md:w-[52%] bg-pearl-white flex flex-col items-center justify-center relative p-12 pt-24 overflow-hidden">
+            <!-- 2024 Decorative Text — positioned above the image -->
+            <div
+                class="text-[8rem] lg:text-[11rem] font-black text-yellow-300/20 uppercase select-none pointer-events-none leading-none tracking-tighter text-right w-full mb-2">
+                2024
+            </div>
+
+            <!-- Hero Image — sits below 2024 -->
+            <div class="relative w-4/5 mx-auto">
+                <img alt="Luxury kitchen appliance"
+                    class="relative z-10 w-full h-auto object-contain drop-shadow-2xl parallax-img"
+                    data-animate="scale-in" data-delay="300"
+                    src="https://images.unsplash.com/photo-1588854337236-6889d631faa8?w=800&q=80" />
+                <!-- WebGL overlay effect (desktop only) -->
+                <div id="hero-webgl" class="absolute inset-0 z-20 hidden md:block pointer-events-none"></div>
+            </div>
+
+            <!-- Product Tag -->
+            <div class="absolute bottom-12 right-12 bg-jet-black text-pearl-white p-6 rounded-lg max-w-[200px] z-20"
+                data-animate="fade-left" data-delay="900">
+                <div class="text-primary font-black mb-1">ST-01 FRIDGE</div>
+                <div class="text-[10px] uppercase tracking-widest text-pearl-white/50">Industrial Design Winner</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== SCROLLING MARQUEE ===== -->
+    <section class="bg-jet-black py-4 border-y border-pearl-white/5 overflow-hidden">
+        <div class="flex whitespace-nowrap scroll-text">
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ Premium Quality</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Carbon Neutral</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ 25 Year
+                Warranty</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Smart Connected</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ A+++ Energy</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Handcrafted</span>
+            <!-- Duplicated for seamless loop -->
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ Premium Quality</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Carbon Neutral</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ 25 Year
+                Warranty</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Smart Connected</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-pearl-white/20 mx-8">★ A+++ Energy</span>
+            <span class="text-sm font-bold tracking-[0.4em] uppercase text-primary/40 mx-8">★ Handcrafted</span>
+        </div>
+    </section>
+
+    <!-- ===== HIGH-IMPACT YELLOW PROMO BANNER ===== -->
+    <section id="collection" class="bg-primary py-24 px-8 relative overflow-hidden">
+        <div class="container mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-12">
+                <div class="md:w-1/2">
+                    <h2 class="text-5xl md:text-7xl font-black text-jet-black uppercase leading-none tracking-tighter"
+                        data-animate="fade-up">
+                        Limited Edition <br />Signature Hue.
+                    </h2>
+                </div>
+                <div class="md:w-1/2 flex flex-col items-start gap-6">
+                    <p class="text-jet-black text-xl font-medium max-w-md" data-animate="fade-up" data-delay="200">
+                        The Signature Yellow edition is now available for pre-order. Elevate your space with a pop of
+                        industrial energy.
+                    </p>
+                    <button
+                        class="magnetic-btn border-2 border-jet-black text-jet-black px-8 py-3 font-bold uppercase text-sm hover:bg-jet-black hover:text-primary transition-all duration-300"
+                        data-animate="fade-up" data-delay="400">
+                        Pre-Order Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repeating Text Background -->
+        <div class="absolute inset-0 flex items-center opacity-[0.07] pointer-events-none select-none overflow-hidden">
+            <div
+                class="whitespace-nowrap text-[20rem] font-black uppercase tracking-tighter italic text-jet-black scroll-text">
+                SIGNATURE SIGNATURE SIGNATURE SIGNATURE SIGNATURE SIGNATURE
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== EDITORIAL FEATURE GRID ===== -->
+    <section id="innovation" class="py-32 px-8 bg-jet-black">
+        <div class="container mx-auto">
+            <!-- First Grid: Image Left, Content Right -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-end mb-32">
+                <div class="md:col-span-7 img-reveal" data-animate="clip-up">
+                    <img alt="Kitchen Interior"
+                        class="w-full aspect-[4/5] object-cover grayscale brightness-75 hover:grayscale-0 hover:brightness-100 transition-all duration-700"
+                        src="https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=800&q=80" />
+                </div>
+                <div class="md:col-span-5 space-y-8 pb-12">
+                    <div class="w-20 h-1 bg-primary" data-animate="fade-right"></div>
+                    <h3 class="text-4xl md:text-6xl font-black text-pearl-white uppercase leading-tight tracking-tighter"
+                        data-animate="fade-up">
+                        The Masterful <br />Craftsmanship.
+                    </h3>
+                    <p class="text-pearl-white/60 text-lg leading-relaxed" data-animate="fade-up" data-delay="200">
+                        Every component is forged from aerospace-grade materials, finished by hand to ensure that every
+                        seam, every dial, and every surface meets the standard of professional chefs.
+                    </p>
+                    <div class="flex flex-col gap-4 text-primary font-bold tracking-widest uppercase text-xs"
+                        data-stagger>
+                        <div class="flex items-center gap-4" data-animate="fade-up">
+                            <span class="material-icons">check_circle</span>
+                            Titanium Forged Surfaces
+                        </div>
+                        <div class="flex items-center gap-4" data-animate="fade-up">
+                            <span class="material-icons">check_circle</span>
+                            Smart Sensor Integration
+                        </div>
+                        <div class="flex items-center gap-4" data-animate="fade-up">
+                            <span class="material-icons">check_circle</span>
+                            Carbon-Neutral Manufacturing
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inverted Grid: Content Left, Image Right -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+                <div class="md:col-span-5 order-2 md:order-1 space-y-8">
+                    <h3 class="text-4xl md:text-6xl font-black text-pearl-white uppercase leading-tight tracking-tighter text-right"
+                        data-animate="fade-up">
+                        Professional <br />Performance.
+                    </h3>
+                    <p class="text-pearl-white/60 text-lg leading-relaxed text-right" data-animate="fade-up"
+                        data-delay="200">
+                        Intuitive interfaces that anticipate your needs. Performance that matches the rigor of a
+                        five-star restaurant, right in the heart of your home.
+                    </p>
+                    <div class="flex justify-end" data-animate="fade-up" data-delay="400">
+                        <button
+                            class="magnetic-btn bg-primary/20 text-primary border border-primary/40 px-8 py-3 font-bold uppercase text-xs tracking-[0.2em] rounded hover:bg-primary hover:text-jet-black transition-all duration-300">
+                            View Specs
+                        </button>
+                    </div>
+                </div>
+                <div class="md:col-span-7 order-1 md:order-2 img-reveal" data-animate="clip-up">
+                    <img alt="Appliance detail"
+                        class="w-full aspect-video object-cover brightness-90 hover:brightness-100 transition-all duration-500"
+                        src="https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=800&q=80" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SPECS SECTION ===== -->
+    <section id="specs" class="bg-pearl-white py-32 overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-1/3 h-full bg-primary/10"></div>
+        <div class="container mx-auto px-8 relative z-10">
+            <div class="mb-20 text-center relative">
+                <h2
+                    class="text-7xl md:text-9xl font-black uppercase tracking-tighter text-jet-black/5 absolute -top-12 left-0 w-full text-center select-none pointer-events-none">
+                    TECHNICAL
+                </h2>
+                <h2 class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-jet-black relative"
+                    data-animate="fade-up">
+                    Built to Outlast.
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-stagger>
+                <!-- Spec Card 1 -->
+                <div class="group bg-jet-black p-12 rounded-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                    data-animate="fade-up">
+                    <span
+                        class="material-icons text-primary text-5xl mb-8 block transition-transform duration-300 group-hover:scale-110">bolt</span>
+                    <h4 class="text-2xl font-black text-pearl-white uppercase mb-4 tracking-tighter">Energy Max</h4>
+                    <p class="text-pearl-white/50 font-light">Rated A+++ for maximum efficiency with our proprietary
+                        Vortex cooling technology.</p>
+                </div>
+                <!-- Spec Card 2 -->
+                <div class="group bg-primary p-12 rounded-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                    data-animate="fade-up">
+                    <span
+                        class="material-icons text-jet-black text-5xl mb-8 block transition-transform duration-300 group-hover:scale-110">settings_input_antenna</span>
+                    <h4 class="text-2xl font-black text-jet-black uppercase mb-4 tracking-tighter">Smart Link</h4>
+                    <p class="text-jet-black/70 font-medium">Connect and control your entire kitchen via the Vortex app
+                        with AI-assisted meal planning.</p>
+                </div>
+                <!-- Spec Card 3 -->
+                <div class="group bg-jet-black p-12 rounded-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                    data-animate="fade-up">
+                    <span
+                        class="material-icons text-primary text-5xl mb-8 block transition-transform duration-300 group-hover:scale-110">shield</span>
+                    <h4 class="text-2xl font-black text-pearl-white uppercase mb-4 tracking-tighter">25 Year Warranty
+                    </h4>
+                    <p class="text-pearl-white/50 font-light">Our promise of quality. A lifetime of service backed by
+                        our signature white-glove support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TRENDING NOW / SHOP SECTION ===== -->
+    <section id="trending" class="bg-pearl-white relative h-[300vh]">
+        <div class="sticky top-0 h-screen flex flex-col justify-center overflow-hidden px-8 lg:px-16 bg-pearl-white">
+            <div class="container mx-auto">
+                <!-- Header Row -->
+                <div class="flex items-end justify-between mb-10" data-animate="fade-up">
+                    <div>
+                        <span class="text-primary text-xs font-bold tracking-[0.3em] uppercase block mb-2">Shop</span>
+                        <h2 class="text-4xl md:text-5xl font-black text-jet-black italic tracking-tight"
+                            style="font-family: Georgia, 'Times New Roman', serif;">
+                            Trending Now
+                        </h2>
+                    </div>
+                    <div
+                        class="text-jet-black/40 text-xs font-bold tracking-widest uppercase animate-pulse hidden md:block">
+                        Scroll to Explore &rarr;
+                    </div>
+                </div>
+
+                <!-- Product Cards Carousel (Single Row Restore) -->
+                <div class="relative w-full">
+                    <div id="shop-carousel" class="flex gap-8 w-fit will-change-transform">
+                        <!-- 1. The Retro Toaster -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#f0ede8] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">The Retro Toaster</h3>
+                                <span class="text-lg font-black text-jet-black">$199</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Available in 4 colors</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 2. Morning Brew -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#2d4a3e] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Morning Brew</h3><span
+                                    class="text-lg font-black text-jet-black">$249</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Programmable Timer</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 3. Power Blender -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#b5c4a8] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Power Blender</h3><span
+                                    class="text-lg font-black text-jet-black">$399</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Glass Pitcher Included</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 4. Rapid Kettle -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#e8dfd4] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Rapid Kettle</h3><span
+                                    class="text-lg font-black text-jet-black">$149</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Temperature Control</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 5. Smart Oven -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#d4d0cb] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Smart Oven Pro</h3><span
+                                    class="text-lg font-black text-jet-black">$599</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Wi-Fi Connected</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 6. Artisan Mixer -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#e6e6e6] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1594385208974-2e75f8d7bb48?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Artisan Mixer</h3><span
+                                    class="text-lg font-black text-jet-black">$349</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Planetary Mixing Action</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 7. Fresh Press -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#d8e2dc] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Fresh Press</h3><span
+                                    class="text-lg font-black text-jet-black">$89</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Cold Press Technology</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 8. Barista Pro -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#2c3333] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1572528771146-5fd37d6cb0fb?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Barista Pro</h3><span
+                                    class="text-lg font-black text-jet-black">$699</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Dual Boiler System</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 9. Air Crisp -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#d1d5db] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1625619376662-7a875567f407?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Air Crisp</h3><span
+                                    class="text-lg font-black text-jet-black">$159</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Oil-Free Cooking</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                        <!-- 10. Slow Chef -->
+                        <div class="w-[300px] flex-shrink-0 group cursor-pointer">
+                            <div class="relative bg-[#a8a29e] rounded-lg overflow-hidden aspect-[4/5] mb-4">
+                                <img src="https://images.unsplash.com/photo-1584269611397-c253b2f2d96c?w=500&q=80"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-jet-black/30 hover:text-red-500 transition-colors duration-300"><span
+                                        class="material-icons text-base">favorite_border</span></button>
+                            </div>
+                            <div class="flex justify-between items-start mb-0.5">
+                                <h3 class="text-lg font-bold text-jet-black italic font-serif">Slow Chef</h3><span
+                                    class="text-lg font-black text-jet-black">$79</span>
+                            </div>
+                            <p class="text-jet-black/40 text-xs mb-2">Smart WiFi Controls</p>
+                            <button
+                                class="text-jet-black text-[11px] font-bold tracking-[0.15em] uppercase hover:text-primary transition-colors duration-300">ADD
+                                TO CART</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <!-- ===== TESTIMONIAL STRIP ===== -->
+    <!-- ===== VOICES / DUAL SCROLL SECTION ===== -->
+    <!-- ===== VOICES / TESTIMONIALS CAROUSEL ===== -->
+    <section id="voices" class="py-24 px-8 border-y border-pearl-white/5 bg-jet-black relative h-[400vh]">
+        <div class="sticky top-0 h-screen flex flex-col justify-center overflow-hidden px-8 bg-jet-black">
+            <div class="container mx-auto">
+                <div class="text-center mb-16">
+                    <span class="text-primary text-xs font-bold tracking-[0.3em] uppercase" data-animate="fade-up">What
+                        They
+                        Say</span>
+                    <h2 class="text-4xl md:text-5xl font-black text-pearl-white uppercase tracking-tighter mt-4"
+                        data-animate="fade-up" data-delay="200">
+                        Voices of Excellence.
+                    </h2>
+                </div>
+
+                <!-- Dual Row Testimonials Container -->
+                <div class="flex flex-col gap-8 w-full">
+
+                    <!-- Row 1: Moves Left -->
+                    <div class="relative w-full overflow-hidden">
+                        <div id="voices-carousel-1" class="flex gap-8 w-fit will-change-transform">
+                            <!-- Testimonial 1 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"The ST-01 has
+                                    completely transformed our kitchen workflow. The precision temperature control is
+                                    genuinely next-level."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        JR</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">James Rodriguez</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Head
+                                            Chef,
+                                            Nobu NYC</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 2 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Startlingly
+                                    beautiful design that actually performs better than professional gear. A rare
+                                    combination."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        AK</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Anna König</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Interior
+                                            Architect, Berlin</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 3 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"We replaced our
+                                    entire line with Vortex units. The durability and aesthetic are exactly what
+                                    high-end
+                                    clients expect."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        ML</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Marcus Liu</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Director,
+                                            Apex Living</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 4 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Finally,
+                                    appliances
+                                    that don't need to be hidden away. They are the centerpiece of my studio."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        ES</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Elena Silva</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Food
+                                            Stylist
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 5 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"The build
+                                    quality is
+                                    substantial. You feel the weight and precision in every dial turn."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        DK</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">David Klein</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">
+                                            Industrial
+                                            Designer</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 6 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Minimalism
+                                    without
+                                    compromise. It does exactly what it needs to do, perfectly, every time."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        SJ</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Sarah Jenkins</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Home Tech
+                                            Reviewer</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Moves Right -->
+                    <div class="relative w-full overflow-hidden">
+                        <div id="voices-carousel-2" class="flex gap-8 w-fit will-change-transform">
+                            <!-- Testimonial 7 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"I've used Wolf
+                                    and
+                                    Viking for years. The Vortex Smart Oven blows them out of the water."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        RB</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Robert Black</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Executive
+                                            Chef</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 8 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"The interface is
+                                    so
+                                    intuitive. My kids use it, my parents use it. Universal design at its best."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        CM</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Claire Moore</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">UX
+                                            Director
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 9 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"A masterpiece of
+                                    engineering. The silent operation of the blender is something you have to hear to
+                                    believe."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        TN</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Thomas Nguyen</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Audio
+                                            Engineer</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 10 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Integration with
+                                    our
+                                    smart home system was flawless. It sets the mood before we even walk in."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        JP</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Jessica Park</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Tech
+                                            Blogger
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 11 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Worth every
+                                    penny.
+                                    The coffee maker improved my morning routine significantly."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-pearl-white font-black text-sm">
+                                        MR</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Michael Ross</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Architect
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Testimonial 12 -->
+                            <div
+                                class="w-[400px] flex-shrink-0 border border-pearl-white/10 p-8 rounded-xl bg-pearl-white/5 backdrop-blur-sm hover:border-primary/30 transition-colors duration-500">
+                                <div class="flex gap-1 text-primary mb-6 text-xs">★★★★★</div>
+                                <p class="text-pearl-white/80 text-lg font-light leading-relaxed mb-6">"Rugged yet
+                                    refined.
+                                    I spilled wine on the control panel - wiped right off, no issues."</p>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-jet-black font-black text-sm">
+                                        LW</div>
+                                    <div>
+                                        <div class="text-pearl-white font-bold text-sm">Lisa Wong</div>
+                                        <div class="text-pearl-white/40 text-[10px] uppercase tracking-widest">Sommelier
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </section>
+    <!-- ===== CTA SECTION ===== -->
+    <section class="bg-pearl-white py-32 px-8 relative overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+            <div class="text-[14rem] md:text-[20rem] font-black text-jet-black/[0.03] uppercase tracking-tighter">
+                VRTX
+            </div>
+        </div>
+        <div class="container mx-auto text-center relative z-10">
+            <h2 class="text-5xl md:text-7xl font-black uppercase tracking-tighter text-jet-black mb-6"
+                data-animate="fade-up">
+                Ready to <span class="text-primary italic">Upgrade</span>?
+            </h2>
+            <p class="text-jet-black/60 text-xl max-w-lg mx-auto mb-10 font-light" data-animate="fade-up"
+                data-delay="200">
+                Visit a Vortex showroom or schedule a virtual consultation with our design team.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center" data-animate="fade-up" data-delay="400">
+                <button
+                    class="magnetic-btn bg-jet-black text-pearl-white px-10 py-4 font-bold uppercase text-sm rounded hover:bg-primary hover:text-jet-black transition-all duration-300">
+                    Book a Consultation
+                </button>
+                <button
+                    class="magnetic-btn border-2 border-jet-black text-jet-black px-10 py-4 font-bold uppercase text-sm rounded hover:bg-jet-black hover:text-pearl-white transition-all duration-300">
+                    Find a Showroom
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="footer" class="bg-jet-black py-24 px-8 border-t border-pearl-white/5">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-24">
+            <div class="md:col-span-2">
+                <div class="text-4xl font-black tracking-tighter text-pearl-white uppercase mb-8"
+                    data-animate="fade-up">
+                    Vortex<span class="text-primary">.</span>
+                </div>
+                <p class="text-pearl-white/40 max-w-sm mb-8 font-light" data-animate="fade-up" data-delay="200">
+                    The intersection of high-end industrial design and domestic utility. We build the future of the
+                    home.
+                </p>
+                <div class="flex gap-4" data-animate="fade-up" data-delay="400">
+                    <a data-magnetic
+                        class="w-10 h-10 bg-pearl-white/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-jet-black transition-colors duration-300"
+                        href="#">
+                        <span class="material-icons text-sm">facebook</span>
+                    </a>
+                    <a data-magnetic
+                        class="w-10 h-10 bg-pearl-white/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-jet-black transition-colors duration-300"
+                        href="#">
+                        <span class="material-icons text-sm">camera</span>
+                    </a>
+                    <a data-magnetic
+                        class="w-10 h-10 bg-pearl-white/10 rounded-full flex items-center justify-center hover:bg-primary hover:text-jet-black transition-colors duration-300"
+                        href="#">
+                        <span class="material-icons text-sm">alternate_email</span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex flex-col gap-4" data-animate="fade-up" data-delay="200">
+                <h5 class="text-primary font-bold uppercase tracking-widest text-xs mb-4">Explore</h5>
+                <a data-magnetic
+                    class="text-pearl-white/60 hover:text-pearl-white transition-colors uppercase text-sm font-semibold"
+                    href="#">Refrigeration</a>
+                <a data-magnetic
+                    class="text-pearl-white/60 hover:text-pearl-white transition-colors uppercase text-sm font-semibold"
+                    href="#">Cooking</a>
+                <a data-magnetic
+                    class="text-pearl-white/60 hover:text-pearl-white transition-colors uppercase text-sm font-semibold"
+                    href="#">Dishwashing</a>
+                <a data-magnetic
+                    class="text-pearl-white/60 hover:text-pearl-white transition-colors uppercase text-sm font-semibold"
+                    href="#">Laundry</a>
+            </div>
+            <div class="flex flex-col gap-4" data-animate="fade-up" data-delay="400">
+                <h5 class="text-primary font-bold uppercase tracking-widest text-xs mb-4">Journal</h5>
+                <div class="flex flex-col gap-6">
+                    <p class="text-pearl-white/60 text-xs font-semibold uppercase">Join our design newsletter for
+                        exclusive releases.</p>
+                    <div class="flex bg-pearl-white/5 p-1 rounded">
+                        <input
+                            class="bg-transparent border-none focus:ring-0 text-pearl-white text-sm w-full px-4 placeholder:text-pearl-white/30"
+                            placeholder="Email Address" type="email" id="newsletter-email" />
+                        <button
+                            class="bg-primary text-jet-black px-6 py-2 font-black uppercase text-[10px] rounded hover:brightness-110 transition-all"
+                            id="newsletter-btn">Join</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="container mx-auto mt-24 pt-8 border-t border-pearl-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] text-pearl-white/30 uppercase tracking-[0.2em]">
+            <p>© 2024 VORTEX INDUSTRIAL DESIGN GROUP. ALL RIGHTS RESERVED.</p>
+            <div class="flex gap-8 mt-4 md:mt-0">
+                <a data-magnetic class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                <a data-magnetic class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script>
+        // --- Smooth Scrolling Setup (Lenis) ---
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+    </script>
+
+    <script src="script.js"></script>
+    <script>
+        // --- Phase 2: Cinematic Animations --- 
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = { threshold: 0.15, rootMargin: "0px" };
+            const cinematicObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                        // Optional: Stop observing once revealed 
+                        cinematicObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // 1. Image Unmasking 
+            document.querySelectorAll(".img-reveal").forEach(el => {
+                el.classList.add("reveal-clip");
+                cinematicObserver.observe(el);
+            });
+
+            // 2. Typography Stagger 
+            document.querySelectorAll("h1, h2, h3").forEach(el => {
+                el.classList.add("text-reveal");
+                const text = el.innerText;
+                el.innerHTML = text.split("").map((char, i) => {
+                    return `<span class="split-char" style="transition-delay: ${i * 0.03}s">${char === " " ? "&nbsp;" : char}</span>`;
+                }).join("");
+                cinematicObserver.observe(el);
+            });
+
+
+            // 3. Parallax Elements - OPTIMIZED
+            const parallaxElements = document.querySelectorAll(".parallax-text");
+            window.addEventListener("scroll", () => {
+                const scrolled = window.scrollY;
+                parallaxElements.forEach(el => {
+                    const speed = el.dataset.speed || 0.2;
+                    el.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            }, { passive: true });
+
+
+        });
+    </script>
+    <script>
+        // Unified Scroll Logic for Shop and Voices
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- SHOP SECTION (Single Row) ---
+            const trendingSection = document.getElementById('trending');
+            const shopCarousel = document.getElementById('shop-carousel');
+
+            // --- VOICES SECTION (Dual Row) ---
+            const voicesSection = document.getElementById('voices');
+            const voicesRow1 = document.getElementById('voices-carousel-1');
+            const voicesRow2 = document.getElementById('voices-carousel-2');
+
+            // --- Hover Pause Logic (Move outside handleScroll to prevent memory leak) ---
+            const pauseOnHover = (element) => {
+                element.addEventListener("mouseenter", () => {
+                    element.style.animationPlayState = "paused";
+                    // For transform based animation, we need a flag 
+                    element.dataset.paused = "true";
+                });
+                element.addEventListener("mouseleave", () => {
+                    element.dataset.paused = "false";
+                });
+            };
+            if (voicesRow1) pauseOnHover(voicesRow1);
+            if (voicesRow2) pauseOnHover(voicesRow2);
+
+            const handleScroll = () => {
+
+                const viewHeight = window.innerHeight;
+
+                // 1. Handle Shop Section (Single Row - Left)
+                if (trendingSection && shopCarousel) {
+                    const rect = trendingSection.getBoundingClientRect();
+                    const sectionHeight = trendingSection.offsetHeight;
+                    const scrollableDistance = sectionHeight - viewHeight;
+
+                    if (scrollableDistance > 0) {
+                        const scrolled = -rect.top;
+                        let progress = scrolled / scrollableDistance;
+                        progress = Math.max(0, Math.min(1, progress));
+
+                        const carouselWidth = shopCarousel.scrollWidth;
+                        const containerWidth = shopCarousel.parentElement.clientWidth;
+                        const maxTranslate = Math.max(0, carouselWidth - containerWidth);
+
+                        shopCarousel.style.transform = `translateX(-${progress * maxTranslate}px)`;
+                    }
+                }
+
+                // 2. Handle Voices Section (Dual Row - Opposite)
+                if (voicesSection && voicesRow1 && voicesRow2) {
+                    const rect = voicesSection.getBoundingClientRect();
+                    const sectionHeight = voicesSection.offsetHeight;
+                    const scrollableDistance = sectionHeight - viewHeight;
+
+                    if (scrollableDistance > 0) {
+                        const scrolled = -rect.top;
+                        let progress = scrolled / scrollableDistance;
+                        progress = Math.max(0, Math.min(1, progress));
+
+                        // Row 1: Left
+                        if (voicesRow1.dataset.paused !== "true") {
+                            const w1 = voicesRow1.scrollWidth;
+                            const c1 = voicesRow1.parentElement.clientWidth;
+                            const maxT1 = Math.max(0, w1 - c1);
+                            voicesRow1.style.transform = `translateX(-${progress * maxT1}px)`;
+                        }
+
+                        // Row 2: Right (Opposite)
+                        if (voicesRow2.dataset.paused !== "true") {
+                            const w2 = voicesRow2.scrollWidth;
+                            const c2 = voicesRow2.parentElement.clientWidth;
+                            const maxT2 = Math.max(0, w2 - c2);
+                            const t2 = maxT2 * (1 - progress);
+                            voicesRow2.style.transform = `translateX(-${t2}px)`;
+                        }
+                    }
+                }
+            };
+
+            // Scroll Loop
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            handleScroll();
+            window.addEventListener('resize', handleScroll);
+
+            // --- LIKE BUTTONS ---
+            // Combine all rows into one list for event binding
+            const allCarousels = [];
+            if (shopCarousel) allCarousels.push(shopCarousel);
+            if (voicesRow1) allCarousels.push(voicesRow1);
+            if (voicesRow2) allCarousels.push(voicesRow2);
+
+            allCarousels.forEach(row => {
+                const likeButtons = row.querySelectorAll('button');
+                likeButtons.forEach(btn => {
+                    const icon = btn.querySelector('.material-icons');
+                    // Check if button text is 'ADD TO CART', skip it. 
+                    // Only target heart icons.
+                    if (icon && (icon.textContent.trim() === 'favorite_border' || icon.textContent.trim() === 'favorite')) {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (icon.textContent.trim() === 'favorite_border') {
+                                icon.textContent = 'favorite';
+                                btn.classList.remove('text-jet-black/30');
+                                btn.classList.add('text-red-500');
+                                icon.style.transform = 'scale(1.2)';
+                                setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                            } else {
+                                icon.textContent = 'favorite_border';
+                                btn.classList.remove('text-red-500');
+                                btn.classList.add('text-jet-black/30');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+    <svg class="pointer-events-none fixed isolate z-50 opacity-70 mix-blend-overlay" width="100%" height="100%">
+        <filter id="pedroduarteisalegend">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#pedroduarteisalegend)"></rect>
+    </svg>
+</body>
+
+</html>
